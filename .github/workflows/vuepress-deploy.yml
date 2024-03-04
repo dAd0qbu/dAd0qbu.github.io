@@ -8,9 +8,11 @@ jobs:
       uses: actions/checkout@master
 
     - name: vuepress-deploy
-      uses: jenkey2011/vuepress-deploy@master
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
       env:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         TARGET_BRANCH: master
-        BUILD_SCRIPT: yarn && yarn build
+        BUILD_SCRIPT: npm install && npm run build
         BUILD_DIR: /.vuepress/dist/
