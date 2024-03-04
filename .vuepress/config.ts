@@ -16,6 +16,8 @@ export default defineUserConfig({
     docsBranch: "main",
     docsDir: "example",
     lastUpdatedText: "Hehehhehe",
+    colorMode: 'dark',
+    primaryColor: "#5E81AC",
     // series 为原 sidebar
     series: {
     },
