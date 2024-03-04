@@ -13,6 +13,6 @@ jobs:
         node-version: '20'
       env:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        TARGET_BRANCH: master
+        TARGET_BRANCH: main
         BUILD_SCRIPT: yarn && yarn build
         BUILD_DIR: /.vuepress/dist/
