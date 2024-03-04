@@ -5,7 +5,7 @@ modules:
   - Blog
   - MdContent
 bannerBrand:
-  bgImage: '/Ocean-3.4s-1991px.svg'
+  bgImage: '/stack.svg'
   title: O henlo
   description: I'm d0qbu from VNUHCM - UIT, and I'm just a CTF enjoyer
   tagline: i luv sec (๑•̀ㅂ•́)و✧
