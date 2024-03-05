@@ -12,10 +12,10 @@ export default defineUserConfig({
     logo: "",
     author: "d0qbu",
     authorAvatar: "/alimi.ico",
-    docsRepo: "https://github.com/vuepress-reco/vuepress-theme-reco-next",
+    docsRepo: "https://github.com/dAd0qbu/dAd0qbu.github.io",
     docsBranch: "main",
-    docsDir: "example",
-    lastUpdatedText: "Hehehhehe",
+    docsDir: "",
+    lastUpdatedText: "",
     colorMode: 'dark',
     primaryColor: "#5E81AC",
     // series 为原 sidebar
