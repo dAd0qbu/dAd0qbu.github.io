@@ -18,7 +18,7 @@ As the leader of the Revivalists you are determined to take down the KORP, you a
 
 
 - Bài cho chúng ta web đơn giản, cho phép lưu các note vào folder của server.
-![image](https://hackmd.io/_uploads/ByJlGRrAa.png)
+![image](assets/upload_027d2f043ec9d329a790d55cf4bf034e.png)
 - File flag nằm ở `/` và được đặt tên random
 ```bash 
 # Change flag name
@@ -142,7 +142,7 @@ In "The Ransomware Dystopia," LockTalk ...(sh1t)... against the encroaching dark
 :::
 
 - App cho 3 API Endpoints
-![image](https://hackmd.io/_uploads/rJirikL0p.png)
+![image](assets/upload_4b8732d6f5341db0d6e2a4936317023b.png)
 Có hai endpoint quan trọng là `get_ticket` để lấy jwt token và `flag` để lấy flag dựa vào jwt token.
 ```python
 @api_blueprint.route('/get_ticket', methods=['GET'])
@@ -175,7 +175,7 @@ khi GET đến thì sẽ bị proxy chặn lại, ACL kiểm tra nếu url bắt
 > Hoặc dựa vào haproxy version hiện tại là 2.8.1, bị dính lỗ hổng bảo mật [CVE-2023-45539](https://www.cvedetails.com/cve/CVE-2023-45539/)
 
 
-![image](https://hackmd.io/_uploads/HJMFOx8A6.png)
+![image](assets/upload_0e510b20e843bf54d1055981089ade3a.png)
 Đã có jwt với role là `guest`, ta cần tìm cách edit jwt để có thể chỉnh thành `admin`.
 Mà ở đây app sử dụng [python-jwt v3.3.3](https://pypi.org/project/python-jwt/) để xử lý jwt. Đây cũng là một phiên bản cũ và bị dính lỗ hổng bảo mật [CVE-2022-39227](https://nvd.nist.gov/vuln/detail/CVE-2022-39227) cho phép ta chỉnh sửa, giả mạo jwt mới với sign cũ.
 
@@ -183,7 +183,7 @@ Mà ở đây app sử dụng [python-jwt v3.3.3](https://pypi.org/project/pytho
 
 ### Về CVE-2022-39227
 `python-jwt` sau đó đã cập nhật lên v3.3.4 để fix lỗi ([#88ad9e6](https://github.com/davedoesdev/python-jwt/commit/88ad9e67c53aa5f7c43ec4aa52ed34b7930068c9)), cụ thể thêm hàm để check jwt format
-![image](https://hackmd.io/_uploads/SJz8fOu0T.png)
+![image](assets/upload_3b9a8d610d16da8f7d268737bee3975c.png)
 Ở phiên bản cũ, ta có thể đưa vào JSON string thay vì JWT string format, dẫn đến việc giả mạo dữ liệu mà vẫn có thể verify thành công.
 
 Khi GET `/api/v1/flag` cùng jwt, app sẽ gọi hàm verify jwt được truyền vào
@@ -232,7 +232,7 @@ Nếu đưa vào JWT đã bị thay đổi theo jwt format thì sẽ verify th�
             self.verify(key, alg)
 ```
 Tập trung vào trường hợp `json_decode` thành công. Code sẽ lấy payload (claims), signature, protected (header) từ `djws` và tiến hành verify.
-![image](https://hackmd.io/_uploads/BJ_XhudRp.png)
+![image](assets/upload_bf5b37a2b2f4abbc97d9f6df646b18b3.png)
 Ta cần đưa vào jwt thỏa mãn:
 - Là dạng JSON string
 - Sau khi split kí tự '.' chia ra 3 phần: header, payload và \_ (KHÔNG QUAN TRỌNG 💣💥💥)
@@ -263,12 +263,12 @@ Sẽ thành
 }
 ```
 Sau khi split, header sẽ là `{"eyJhbGciOiJQUzI1NiIsInR5cCI6IkpXVCJ9` nhưng vẫn có thể decode và loads thành công
-![image](https://hackmd.io/_uploads/Hyr8OXFRT.png)
+![image](assets/upload_e3a48eaeb0a7a0423afc4df7839003e9.png)
 
 Sau đó jwt được deserilize và verify
-![image](https://hackmd.io/_uploads/SkMrtXtCT.png)
+![image](assets/upload_47b0a8c7c7a3dee7f6499b9da873b52d.png)
 Cuối cùng jwt được verify qua JWSCore, vì param `header` được truyền vào từ `protected` nên khi tạo JSONG string, mình phải dùng `protected`.
-![image](https://hackmd.io/_uploads/r1zz9Xt0a.png)
+![image](assets/upload_ac3e2db5abe29277e5dc9664ab0686f1.png)
 
 
 ---
