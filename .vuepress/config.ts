@@ -18,13 +18,10 @@ export default defineUserConfig({
     lastUpdatedText: "",
     colorMode: 'dark',
     primaryColor: "#5E81AC",
-    // series 为原 sidebar
-    series: {
-    },
     navbar: [
       { text: "Home", link: "/" },
+      { text: "Timeline", link: "/timeline/" },
       { text: "Categories", link: "/categories/CTF/1/" },
-      // { text: "Tags", link: "/tags/tag1/1/" },
     ],
     bulletin: {},
     // commentConfig: {
