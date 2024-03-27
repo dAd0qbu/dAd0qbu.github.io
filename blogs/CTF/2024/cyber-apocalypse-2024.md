@@ -1,6 +1,6 @@
 ---
 title: Cyber Apocalypse CTF 2024
-date: 03/20/2024
+date: 2024-03-20
 tags:
  - JWT
  - Pathtraversal
@@ -20,7 +20,7 @@ As the leader of the Revivalists you are determined to take down the KORP, you a
 - Bài cho chúng ta web đơn giản, cho phép lưu các note vào folder của server.
 ![image](assets/upload_027d2f043ec9d329a790d55cf4bf034e.png)
 - File flag nằm ở `/` và được đặt tên random
-```bash 
+```bash
 # Change flag name
 mv /flag.txt /flag$(cat /dev/urandom | tr -cd "a-f0-9" | head -c 10).txt
 ```

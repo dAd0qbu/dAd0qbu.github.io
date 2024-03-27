@@ -1,6 +1,6 @@
 ---
 title: WannaGame Freshman 2023
-date: 11/11/2023
+date: 2023-11-11
 tags:
  - SQLi 
  - SSTI
