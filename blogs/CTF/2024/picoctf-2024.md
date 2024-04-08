@@ -12,7 +12,7 @@ categories:
 
 PicoCTF2024 là giải Weekly đầu tiên trong năm 2024 của CLB và cũng có thể xem là giải debut của team mình dù đã hoạt động từ lâu. Dù không thể giải quyết hết tất cả các challenge nhưng KHÔNG QUAN TRỌNG 💣💥💥, bọn mình cũng đã cố gắng hết sức.
 
-![image](assets/image.png)
+![image](assets/picoctf-2024/picoctf-2024.png)
 
 Dưới đây là writeup của một số bài trong PicoCTF
 
@@ -22,7 +22,7 @@ How well can you perfom basic binary operations?
 Start searching for the flag here `nc titan.picoctf.net`
 :::
 Bài yêu cầu connect tới server nc và trả lời một số câu hỏi trong thời gian nhất định. Sau khi trả lời đủ sau câu sẽ yêu cầu trả lời lại câu hỏi cuối cùng để confirm và gửi flag.
-![image](assets/image-1.png)
+![image](assets/picoctf-2024/picoctf-2024-1.png)
 
 
 Đây là script của mình để solve bài này.
@@ -78,19 +78,19 @@ Can you abuse the banner?
 Additional details will be available after launching your challenge instance.
 :::
 Trước tiên ta cần trả lời một số câu hỏi đơn giản, sau khi trả lời xong sẽ được xài bash
-![image](assets/image-2.png)
+![image](assets/picoctf-2024/picoctf-2024-2.png)
 
 Kiểm tra thì thấy có script python đang chạy ở `/root`
-![image](assets/image-3.png)
+![image](assets/picoctf-2024/picoctf-2024-3.png)
 Ở đây có file `flag.txt` nhưng bị giới hạn quyền chỉ cho user `root` đọc file.
 
 Còn có `script.py` của user `root`, cho phép ta đọc nội dung của file đó.
 Đọc thử file `script.py` sẽ thấy code sẽ đọc nội dung từ file `/home/player/banner` và print ra khi chạy sript
-![image](assets/image-4.png)
+![image](assets/picoctf-2024/picoctf-2024-4.png)
 
 --> Ta có thể xài symlynk để khi đọc file `/home/player/banner` nó sẽ tự trỏ tới file `/root/flag.txt` để đọc và print ra.
 Sau khi tạo symlink, kiểm tra sẽ thấy banner trỏ tới flag.txt
-![image](assets/image-5.png)
+![image](assets/picoctf-2024/picoctf-2024-5.png)
 Bây giờ chỉ việc nc lại là có flag
 
 > Bài này còn một cách khác là leo quyền lên root với password là `iloveyou` 🤨
@@ -105,14 +105,14 @@ Bài cho phép ta sử dụng command nhưng lại ban gần như hầu hết c�
 --> Mình nghĩ đến hướng sử dụng [wildcards](https://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm) để thay thế.
 
 Trước tiên cần tìm flag file nằm đâu, sau khi fuzz thì mò ra nó nằm ở `blargh/flag.txt`
-![image](assets/image-6.png)
+![image](assets/picoctf-2024/picoctf-2024-6.png)
 
 Tiếp theo ta cần tìm cách đọc file flag
 Vì có thể xài ký tự số nên mình tìm các lệnh có chứa ký tự số có thể xài được 
-![image](assets/image-7.png)
+![image](assets/picoctf-2024/picoctf-2024-7.png)
 
 Ta thấy có base32 (base64) có thể xài được nên có thể sử dụng `/???/???/????32` để gọi đến `/usr/bin/base32` và đọc file
-![image](assets/image-8.png)
+![image](assets/picoctf-2024/picoctf-2024-8.png)
 
 > Ngoài ra còn một số lệnh có thể sử dụng như `/usr/bin/diff3`, `/usr/bin/pdb3.8` (vì script chạy với python3.8)
 > 
@@ -127,16 +127,16 @@ You can download the source [here](https://artifacts.picoctf.net/c_atlas/34/app.
 The website is running [here](http://atlas.picoctf.net:53436/). Can you log in?
 :::
 App sử dụng database là MongoDB, khi POST `/login` sẽ gửi JSON gồm email và password cho server 
-![image](assets/image-9.png)
+![image](assets/picoctf-2024/picoctf-2024-9.png)
 
 Query của MongoDB ta có thể thêm vào một object có key là `$regex` để match query thỏa điều kiện của regex đó.
 Như thế, ta chỉ cần đưa vào email là `joshiriya355@mumbama.com` và password match `.*`.
 
 Tuy nhiên nếu đưa object vào password sẽ bị lỗi, vì ở phần code xử lý sẽ check password bắt đầu bằng "{" và kết thúc bằng "}" là syntax của JSON, khi đó code sẽ tự parse string đó thành JSON object
-![image](assets/image-10.png)
+![image](assets/picoctf-2024/picoctf-2024-10.png)
 
 Giờ chỉ việc POST lên với password là JSON string sẽ được token, decode token và ra flag
-![image](assets/image-11.png)
+![image](assets/picoctf-2024/picoctf-2024-11.png)
 
 ## WEB: Trickster
 :::info Challenge
@@ -162,9 +162,9 @@ Code sẽ check file có phải PNG hay không dựa vào
 - Tên file có chứa ".png"
 
 Vì Backend sử dụng PHP/8.0.30, ta chỉ cần upload file php lên chạy hàm `shell_exec` để RCE
-![image](assets/image-12.png)
+![image](assets/picoctf-2024/picoctf-2024-12.png)
 
-![image](assets/image-13.png)
+![image](assets/picoctf-2024/picoctf-2024-13.png)
 ##
 
-Check out mah teammates' blog: [@clowncs](https://clowncs.github.io/picoctf2024/), [s1gm4🦆](https://s19ma.github.io/posts/2024/picoCTF_2024.html)
+Check out mah teammates' blog: [@clowncs](https://clowncs.github.io/picoctf2024/), [s1gm4🦆](https://s19ma.github.io/posts/2024/picoCTF_2024.html), [n3g4tee](https://hackmd.io/@n3g4tee/H16kbFm0T).
