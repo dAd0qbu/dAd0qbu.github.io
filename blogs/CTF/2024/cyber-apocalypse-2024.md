@@ -275,5 +275,35 @@ Cuối cùng jwt được verify qua JWSCore, vì param `header` được truy�
 ---
 Bài viết tham khảo thêm từ [@user0x1337/CVE-2022-39227](https://github.com/user0x1337/CVE-2022-39227)
 
+## WEB: SerialFlow
+:::info Challenge
+SerialFlow is the main global network used by KORP, you have managed to reach a root server web interface by traversing KORP's external proxy network. Can you break into the root server and open pandoras box by revealing the truth behind KORP?
+
+[`📁 web_serialflow.zip`](#)
+:::
+
+Khi vào web ta sẽ thấy một giao diện khá ngầu
+![alt text](assets/cyber-apocalypse-2024/cyber-apocalypse-2024-8.png)
+Ta có thể chỉnh sửa màu của text khi GET `/set?uicolor=(color)` với color là màu tùy chỉnh.
+Ngó qua `requirements.txt` có thể thấy code sử dụng Flask, Flask-Session và pylibmc (memcached)
+```
+Flask==2.2.2
+Flask-Session==0.4.0
+pylibmc==1.6.3
+Werkzeug==2.2.2
+debugpy
+```
+Code sử dụng memcache làm cache server để lưu data.
+Có một [blog](https://btlfry.gitlab.io/notes/posts/memcached-command-injections-at-pylibmc/) khá thú vị nói về memcached injection to RCE dựa vào Pickle deserialize (unpickle).
+
+Pickle sẽ load val từ memcached server, với `full_session_key` có sid là mình có thể tùy chỉnh 
+![alt text](assets/cyber-apocalypse-2024/cyber-apocalypse-2024-9.png)
+Theo blog thì ta có thể sử dụng memcached injection để thêm vào memcached server data của mình.
+
+![alt text](assets/cyber-apocalypse-2024/cyber-apocalypse-2024-10.png)
+Khi đưa vào cookie và reload page, nhờ memcache injection, ta đã đưa vào dữ liệu của mình như sau
+![alt text](assets/cyber-apocalypse-2024/cyber-apocalypse-2024-11.png)
+Khi pickle loads `hehe`, hàm `os.system` sẽ được chạy và tạo một file `huhu.txt` ở temp folders. Như vậy là RCE thành công, từ đây ta có thể đọc file flag và send đến server của mình qua dns với lệnh `nslookup`.
+
 #
-*Update later*
+~~*Update later*~~
