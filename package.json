@@ -11,8 +11,8 @@
     "build": "vuepress build .",
     "blogs:build": "vuepress build blogs"
   },
-  "dependencies": {
-    "vuepress": "2.0.0-rc.0",
-    "vuepress-theme-reco": "2.0.0-rc.5"
+  "devDependencies": {
+    "vuepress": "^2.0.0-rc.18",
+    "vuepress-theme-reco": "^2.0.0-rc.25"
   }
 }

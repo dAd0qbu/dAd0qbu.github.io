@@ -5,3 +5,11 @@
 .tagline {
     color:gray !important;
 }
+
+.navbar-container {
+    background-color:rgb(255 255 255 / 0.8) !important;
+}
+
+.navbar-container:is(.dark *) {
+    background-color: rgb(23 23 23 / 0.6) !important;
+}
